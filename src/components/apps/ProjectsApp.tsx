@@ -11,6 +11,40 @@ const FOLDERS: Record<string, (p: Project) => boolean> = {
   'Learning / Ongoing': (p) => p.status === 'In Progress' || p.status === 'Prototype',
 };
 
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    id: 'fallback-1',
+    slug: 'atqan-os-portfolio',
+    title: 'AtqanOS — Interactive Portfolio',
+    short_description: 'A macOS-inspired interactive web OS built as a personal portfolio, featuring draggable windows, a dock, desktop icons, and Supabase-backed admin CMS.',
+    long_description: 'Built with Next.js 16, Tailwind CSS v4, Zustand, and Supabase. The project showcases a custom window management system, responsive mobile layout, avatar upload, contact form, and a full admin panel for managing projects, skills, and profile data.',
+    category: 'Full-Stack / Portfolio',
+    status: 'Live',
+    featured: true,
+    published: true,
+    display_order: 1,
+    tech_stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Zustand', 'Supabase', 'React'],
+    key_features: [
+      'Draggable/resizable window management system',
+      'Supabase-backed admin CMS for projects, skills, and profile',
+      'Responsive mobile layout with full app support',
+      'Avatar upload via Supabase Storage',
+      'Real-time contact form with message inbox',
+    ],
+    problem_solved: 'Standard portfolio sites are static and forgettable. AtqanOS creates an interactive, memorable OS-like experience that simultaneously demonstrates full-stack engineering skills.',
+    live_url: null,
+    github_url: 'https://github.com/atqananwar/atqan-works',
+    cover_image_url: null,
+    screenshots: [],
+    demo_video_url: null,
+    mockup_video_url: null,
+    external_video_url: null,
+    case_study: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
 type View = 'explorer' | 'folder' | 'project';
 
 export function ProjectsApp() {
@@ -22,8 +56,8 @@ export function ProjectsApp() {
 
   useEffect(() => {
     getPublishedProjects()
-      .then(setProjects)
-      .catch(console.error)
+      .then((data) => setProjects(data.length > 0 ? data : FALLBACK_PROJECTS))
+      .catch(() => setProjects(FALLBACK_PROJECTS))
       .finally(() => setLoading(false));
   }, []);
 
@@ -47,7 +81,7 @@ export function ProjectsApp() {
     return (
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
-          <button onClick={() => setView('explorer')} className="text-white/50 hover:text-white transition-colors">
+          <button aria-label="Back to Projects" onClick={() => setView('explorer')} className="text-white/50 hover:text-white transition-colors">
             <ArrowLeft size={16} />
           </button>
           <ChevronRight size={14} className="text-white/30" />
@@ -124,7 +158,7 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 sticky top-0 bg-black/60 backdrop-blur-xl z-10">
-        <button onClick={onBack} className="text-white/50 hover:text-white transition-colors">
+        <button aria-label="Back to folder" onClick={onBack} className="text-white/50 hover:text-white transition-colors">
           <ArrowLeft size={16} />
         </button>
         <ChevronRight size={14} className="text-white/30" />
@@ -267,13 +301,13 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
       {/* Gallery lightbox */}
       {galleryIndex !== null && (
         <div className="fixed inset-0 z-[99] bg-black/90 flex items-center justify-center p-4" onClick={() => setGalleryIndex(null)}>
-          <button className="absolute top-4 right-4 text-white/60 hover:text-white">
+          <button aria-label="Close gallery" className="absolute top-4 right-4 text-white/60 hover:text-white">
             <X size={24} />
           </button>
-          <img src={project.screenshots[galleryIndex]} alt="" className="max-w-full max-h-full object-contain rounded-xl" />
+          <img src={project.screenshots[galleryIndex]} alt={`${project.title} screenshot ${galleryIndex + 1}`} className="max-w-full max-h-full object-contain rounded-xl" />
           <div className="absolute bottom-4 flex gap-2">
             {project.screenshots.map((_, i) => (
-              <button key={i} onClick={(e) => { e.stopPropagation(); setGalleryIndex(i); }}
+              <button key={i} aria-label={`Screenshot ${i + 1}`} onClick={(e) => { e.stopPropagation(); setGalleryIndex(i); }}
                 className={`w-2 h-2 rounded-full transition-colors ${i === galleryIndex ? 'bg-white' : 'bg-white/30'}`} />
             ))}
           </div>

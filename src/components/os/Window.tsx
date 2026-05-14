@@ -81,18 +81,21 @@ function WindowHeader({ id }: { id: AppId }) {
     >
       <div className="flex items-center gap-1.5">
         <button
+          aria-label={`Close ${win.title}`}
           onClick={(e) => { e.stopPropagation(); closeWindow(id); }}
           className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors flex items-center justify-center group"
         >
           <X size={7} className="opacity-0 group-hover:opacity-100 text-red-900" />
         </button>
         <button
+          aria-label={`Minimize ${win.title}`}
           onClick={(e) => { e.stopPropagation(); minimizeWindow(id); }}
           className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors flex items-center justify-center group"
         >
           <Minus size={7} className="opacity-0 group-hover:opacity-100 text-yellow-900" />
         </button>
         <button
+          aria-label={win.isMaximized ? `Restore ${win.title}` : `Maximize ${win.title}`}
           onClick={(e) => {
             e.stopPropagation();
             win.isMaximized ? restoreWindow(id) : maximizeWindow(id);

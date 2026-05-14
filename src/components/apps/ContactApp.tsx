@@ -67,7 +67,7 @@ export function ContactApp() {
               <Check size={24} className="text-green-400" />
             </div>
             <p className="text-green-400 font-medium">Message sent!</p>
-            <p className="text-white/50 text-sm text-center">II'llapos;ll get back to you as soon as possible.</p>
+            <p className="text-white/50 text-sm text-center">I&apos;ll get back to you as soon as possible.</p>
             <button onClick={() => setSuccess(false)} className="text-white/40 text-xs hover:text-white/70 transition-colors">Send another</button>
           </div>
         ) : (

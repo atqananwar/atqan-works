@@ -33,6 +33,7 @@ export function DesktopIcon({ appId }: DesktopIconProps) {
 
   return (
     <button
+      aria-label={`Open ${config.title}`}
       onClick={handleClick}
       onDoubleClick={handleClick}
       className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 active:bg-white/20 transition-all duration-150 select-none group w-20"

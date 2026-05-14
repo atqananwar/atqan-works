@@ -116,6 +116,7 @@ export function Dock() {
           return (
             <button
               key={appId}
+              aria-label={config.title}
               onClick={() => handleDockClick(appId)}
               onMouseEnter={() => setHoveredApp(appId)}
               onMouseLeave={() => setHoveredApp(null)}
