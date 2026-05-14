@@ -53,7 +53,7 @@ export const APP_CONFIGS: Record<AppId, AppConfig> = {
   },
 };
 
-interface WindowStore {
+export interface WindowStore {
   windows: Record<AppId, WindowState>;
   topZIndex: number;
   openWindow: (id: AppId) => void;
