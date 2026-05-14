@@ -1,11 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useWindowStore } from '@/store/windowStore';
+import { getProfile } from '@/lib/db/profile';
 
 const FOCUS_TAGS = ['Full-Stack Web Apps', 'Portfolio Systems', 'Dashboards', 'CMS Tools'];
 
 export function WelcomeApp() {
   const { closeWindow, openWindowCentered } = useWindowStore();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    getProfile().then((p) => {
+      if (p?.avatar_url) setAvatarUrl(p.avatar_url);
+    }).catch(() => {});
+  }, []);
 
   const handleViewProjects = () => {
     closeWindow('welcome');
@@ -28,21 +37,35 @@ export function WelcomeApp() {
     }}>
       {/* Avatar + Identity */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-        <div style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '18px',
-          background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '26px',
-          fontWeight: '700',
-          color: 'white',
-          flexShrink: 0,
-        }}>
-          A
-        </div>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt="Atqan Anwar"
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '18px',
+              objectFit: 'cover',
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '18px',
+            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '26px',
+            fontWeight: '700',
+            color: 'white',
+            flexShrink: 0,
+          }}>
+            A
+          </div>
+        )}
         <div>
           <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '700', margin: 0, lineHeight: 1.2 }}>
             Atqan Anwar

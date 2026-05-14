@@ -38,9 +38,17 @@ export function AboutApp() {
       {/* Header */}
       <div className="p-6 pb-4 border-b border-white/10">
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">
-            {profile.name?.[0] ?? 'A'}
-          </div>
+          {profile.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt="Atqan Anwar"
+              className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white flex-shrink-0">
+              {profile.name?.[0] ?? 'A'}
+            </div>
+          )}
           <div className="min-w-0">
             <h2 className="text-white text-xl font-bold">{profile.name}</h2>
             <p className="text-white/50 text-sm mt-0.5 leading-snug">{profile.headline}</p>

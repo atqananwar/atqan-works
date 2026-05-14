@@ -1,9 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { getProfile, updateProfile } from '@/lib/db/profile';
 import type { Profile, EducationEntry, ExperienceEntry } from '@/types';
+
+async function uploadAvatarFile(file: File): Promise<string> {
+  const supabase = createClient();
+  const path = 'profile/avatar.webp';
+
+  const { error } = await supabase.storage
+    .from('avatars')
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+  return data.publicUrl;
+}
 
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -13,6 +28,10 @@ export default function AdminProfilePage() {
   const [error, setError] = useState('');
   const [targetRoleInput, setTargetRoleInput] = useState('');
   const [achievementInput, setAchievementInput] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const [avatarCacheBust, setAvatarCacheBust] = useState(() => Date.now());
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));
@@ -35,6 +54,23 @@ export default function AdminProfilePage() {
 
   const update = (key: keyof Profile, value: unknown) => {
     setProfile((prev) => prev ? { ...prev, [key]: value } : prev);
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    setAvatarError('');
+    try {
+      const url = await uploadAvatarFile(file);
+      update('avatar_url', url);
+      setAvatarCacheBust(Date.now());
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = '';
+    }
   };
 
   const addRole = () => {
@@ -97,6 +133,51 @@ export default function AdminProfilePage() {
 
       {error && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
       {success && <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">Profile saved!</div>}
+
+      {/* Avatar upload */}
+      <div className="flex items-center gap-6 mb-8 pb-8 border-b border-white/5">
+        {/* Preview */}
+        <div className="relative flex-shrink-0">
+          {profile.avatar_url ? (
+            <img
+              src={`${profile.avatar_url}?t=${avatarCacheBust}`}
+              alt="Profile"
+              className="w-20 h-20 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white">
+              {profile.name?.[0] ?? 'A'}
+            </div>
+          )}
+          {avatarUploading && (
+            <div className="absolute inset-0 rounded-2xl bg-black/60 flex items-center justify-center">
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+
+        {/* Controls */}
+        <div>
+          <p className="text-white text-sm font-medium mb-0.5">Profile Photo</p>
+          <p className="text-white/40 text-xs mb-3">JPG, PNG or WebP, max 5MB</p>
+          <button
+            type="button"
+            disabled={avatarUploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+          >
+            {avatarUploading ? 'Uploading…' : 'Upload Photo'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+          {avatarError && <p className="text-red-400 text-xs mt-2">{avatarError}</p>}
+        </div>
+      </div>
 
       <div className="space-y-8">
         <Section title="Basic Info">

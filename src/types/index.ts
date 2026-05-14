@@ -46,6 +46,7 @@ export interface Profile {
   github_url: string | null;
   linkedin_url: string | null;
   resume_url: string | null;
+  avatar_url: string | null;
   location: string | null;
   target_roles: string[];
   education: EducationEntry[];
