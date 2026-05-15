@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getProfile } from '@/lib/db/profile';
 import type { AppId } from '@/types';
 
 const MOBILE_APPS: { id: AppId; label: string; icon: string }[] = [
@@ -12,6 +13,12 @@ const MOBILE_APPS: { id: AppId; label: string; icon: string }[] = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
+const FEATURED_PROJECTS: { name: string; tech: string }[] = [
+  { name: 'Atqan Works', tech: 'Next.js · Supabase · Tailwind' },
+  { name: 'GerakFit', tech: 'Flutter · Firebase' },
+  { name: 'Dompetku', tech: 'Laravel · MySQL' },
+];
+
 interface MobileHomeProps {
   onOpenApp: (id: AppId) => void;
 }
@@ -19,6 +26,7 @@ interface MobileHomeProps {
 export function MobileHome({ onOpenApp }: MobileHomeProps) {
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const update = () => {
@@ -31,112 +39,216 @@ export function MobileHome({ onOpenApp }: MobileHomeProps) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    getProfile().then((p) => { if (p?.avatar_url) setAvatarUrl(p.avatar_url); }).catch(() => {});
+  }, []);
+
   return (
-    <div className="flex flex-col h-full">
+    <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
       {/* Status bar */}
-      <div className="flex items-center justify-between px-5 pt-3 pb-1 text-white text-xs">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 20px 4px',
+        color: 'white',
+        fontSize: '12px',
+      }}>
         <span>{time}</span>
-        <span className="font-medium tracking-wide">AtqanOS</span>
+        <span style={{ fontWeight: 500, letterSpacing: '0.05em' }}>AtqanOS</span>
         <span>✦</span>
       </div>
 
       {/* Clock */}
-      <div className="flex flex-col items-center pt-8 pb-6">
-        <p className="text-white text-5xl font-light tracking-tight">{time}</p>
-        <p className="text-white/50 text-sm mt-2">{date}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '18px 0 14px' }}>
+        <p style={{ color: 'white', fontSize: '48px', fontWeight: 300, letterSpacing: '-0.02em', margin: 0, lineHeight: 1 }}>{time}</p>
+        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', margin: '6px 0 0' }}>{date}</p>
       </div>
 
       {/* Identity intro card */}
       <div style={{
-        margin: '0 20px 18px',
-        padding: '16px 18px',
+        margin: '0 16px 14px',
+        padding: '14px 16px',
         borderRadius: '16px',
         background: 'rgba(255,255,255,0.06)',
         border: '1px solid rgba(255,255,255,0.10)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
       }}>
+        {/* Top row: avatar + name/role + dot */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Avatar */}
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '18px',
-            fontWeight: '700',
-            color: 'white',
-            flexShrink: 0,
-          }}>
-            A
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Atqan Anwar"
+              style={{ width: '44px', height: '44px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }}
+            />
+          ) : (
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+              fontWeight: '700',
+              color: 'white',
+              flexShrink: 0,
+            }}>A</div>
+          )}
+
           <div style={{ minWidth: 0, flex: 1 }}>
             <p style={{ color: 'white', fontWeight: '600', fontSize: '15px', margin: 0, lineHeight: 1.2 }}>
               Atqan Anwar
             </p>
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '12px', margin: '3px 0 0', lineHeight: 1.3 }}>
+            <p style={{ color: 'rgba(255,255,255,0.50)', fontSize: '12px', margin: '2px 0 0', lineHeight: 1.3 }}>
               Software Developer / Web Developer
             </p>
+            <p style={{ color: 'rgba(255,255,255,0.32)', fontSize: '11px', margin: '2px 0 0', lineHeight: 1.3 }}>
+              Building full-stack web apps, dashboards &amp; CMS tools.
+            </p>
           </div>
-          {/* Available badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
-            <span style={{
-              width: '7px',
-              height: '7px',
-              borderRadius: '50%',
-              background: '#22c55e',
-              display: 'inline-block',
-              boxShadow: '0 0 5px #22c55e',
-            }} />
-          </div>
+
+          <span style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: '#22c55e',
+            display: 'inline-block',
+            boxShadow: '0 0 5px #22c55e',
+            flexShrink: 0,
+          }} />
         </div>
 
-        {/* CTA button */}
-        <button
-          onClick={() => onOpenApp('projects')}
-          style={{
-            display: 'block',
-            width: '100%',
-            marginTop: '13px',
-            padding: '10px',
-            borderRadius: '10px',
-            border: 'none',
-            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            color: 'white',
-            fontSize: '13px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            letterSpacing: '0.01em',
-          }}
-        >
-          View My Projects
-        </button>
+        {/* CTA buttons */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <button
+            onClick={() => onOpenApp('projects')}
+            style={{
+              flex: 1,
+              padding: '10px',
+              borderRadius: '10px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+              color: 'white',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              letterSpacing: '0.01em',
+            }}
+          >
+            View Projects
+          </button>
+          <button
+            onClick={() => onOpenApp('contact')}
+            style={{
+              flex: 1,
+              padding: '10px',
+              borderRadius: '10px',
+              border: '1px solid rgba(255,255,255,0.15)',
+              background: 'rgba(255,255,255,0.07)',
+              color: 'rgba(255,255,255,0.80)',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              letterSpacing: '0.01em',
+            }}
+          >
+            Contact Me
+          </button>
+        </div>
       </div>
 
       {/* App grid */}
-      <div className="flex-1 px-6">
-        <div className="grid grid-cols-3 gap-4">
+      <div style={{ padding: '0 20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
           {MOBILE_APPS.map((app) => (
             <button
               key={app.id}
               onClick={() => onOpenApp(app.id)}
-              className="flex flex-col items-center gap-2 group"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+              }}
             >
-              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-3xl shadow-lg group-active:scale-95 transition-transform">
+              <div style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '18px',
+                background: 'rgba(255,255,255,0.10)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              }}>
                 {app.icon}
               </div>
-              <span className="text-white/80 text-xs font-medium text-center leading-tight">{app.label}</span>
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '11px', fontWeight: 500, textAlign: 'center', lineHeight: 1.2 }}>
+                {app.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured Projects */}
+      <div style={{ margin: '18px 16px 0' }}>
+        <p style={{
+          color: 'rgba(255,255,255,0.30)',
+          fontSize: '10px',
+          fontWeight: '600',
+          letterSpacing: '0.10em',
+          textTransform: 'uppercase',
+          margin: '0 0 8px 2px',
+        }}>
+          Featured Projects
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {FEATURED_PROJECTS.map((proj) => (
+            <button
+              key={proj.name}
+              onClick={() => onOpenApp('projects')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: '13px', fontWeight: '600', margin: 0, lineHeight: 1.2 }}>
+                  {proj.name}
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '11px', margin: '2px 0 0', lineHeight: 1 }}>
+                  {proj.tech}
+                </p>
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '16px', lineHeight: 1 }}>›</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Home indicator */}
-      <div className="flex justify-center pb-4 pt-2">
-        <div className="w-24 h-1 rounded-full bg-white/20" />
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0 12px' }}>
+        <div style={{ width: '96px', height: '4px', borderRadius: '9999px', background: 'rgba(255,255,255,0.18)' }} />
       </div>
     </div>
   );
